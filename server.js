@@ -11,5 +11,8 @@ io.on("connection", socket => {
         io.emit("socket_follow_user", msg);
     });
 });
-
-server.listen(80, () => console.log("server running on port:" + 80));
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, err => {
+    if(err) throw err;
+    console.log("Server running");
+});
