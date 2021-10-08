@@ -12,24 +12,15 @@ io.on("connection", (socket) => {
   socket.on("login", ({ uid, email }) => {
     //* create user
     ct_users.push({id:socket.id, user_id: uid, user_email: email});
-    console.log(ct_users);
-    socket.emit("here", ct_users);
+    console.log(ct_users, "User List");
     //broad cast self available signal to someones was accepted
   });
-
-  socket.on("messagepage", (dd) => {
-    //* create user
-    // ct_users.push({id:socket.id, user_id: uid, user_email: email});
-    console.log(dd);
-    socket.emit("here", dd);
-    //broad cast self available signal to someones was accepted
-  });
-
 
   socket.on("sendmessage", ({receiver_id, message_text}) => {
     //* create user
     // ct_users.push({id:socket.id, user_id: uid, user_email: email});
     const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
+    console.log('Sender', ct_users[selfIndex]);
     socket.emit("message", {
       sender: {id:ct_users[selfIndex].user_id},
       createdAt: new Date().toString(),
@@ -37,8 +28,9 @@ io.on("connection", (socket) => {
     });
     const index = ct_users.findIndex((e_user) => e_user.user_id === receiver_id);
     if(index != -1){
+      console.log('Receiver', ct_users[index]);
       io.to(ct_users[index].id).emit("message", {
-        sender: {id:ct_users[index].user_id},
+        sender: {id:ct_users[selfIndex].user_id},
         createdAt: new Date().toString(),
         message: message_text,
       });
