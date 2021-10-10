@@ -5,6 +5,8 @@ const io = require("socket.io")(server);
 const { get_Current_User, user_Disconnect, join_User } = require("./dummyuser");
 // const port = 3000;
 const ct_users = [];
+const users_byid = [];
+const rooms_byid = [];
 
 //initializing the socket io connection 
 io.on("connection", (socket) => {
@@ -12,8 +14,15 @@ io.on("connection", (socket) => {
   socket.on("login", ({ uid, email }) => {
     //* create user
     ct_users.push({id:socket.id, user_id: uid, user_email: email});
+    users_byid[uid] = {id:socket.id, user_id: uid, user_email: email};
     console.log(ct_users, "User List");
     //broad cast self available signal to someones was accepted
+    socket.broadcast.emit("joined", {id:socket.id, user_id: uid, user_email: email});
+  });
+
+  socket.on("getjoinedusers", () => {
+    console.log('getjoinedusers', users_byid);
+    socket.emit("joinedusers", users_byid);
   });
 
   socket.on("sendmessage", ({receiver_id, message_text}) => {
@@ -38,6 +47,24 @@ io.on("connection", (socket) => {
     
     //broad cast self available signal to someones was accepted
   });
+
+  socket.on("gethisonline", (him) => {
+    const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
+    socket.emit("hisonline", users_byid[him] ? true : false);
+    if (users_byid[him]) {
+      rooms_byid[ct_users[selfIndex].user_id] = him;
+    }
+  });
+
+  socket.on("istyping", (him) => {
+    console.log(him, 'him');
+    const index = ct_users.findIndex((e_user) => e_user.user_id === him);
+    if (index != -1){
+      console.log(ct_users[index], 'lalalal')
+      io.to(ct_users[index].id).emit("istyping", true);
+    }
+  });
+
 
     //for a new user joining the room
     // socket.on("joinRoom", ({ username, roomname }) => {
@@ -79,6 +106,8 @@ io.on("connection", (socket) => {
       const index = ct_users.findIndex((e_user) => e_user.id === socket.id);
 
       if (index !== -1) {
+        socket.broadcast.emit("outed", ct_users[index]);
+        users_byid.splice(ct_users[index].user_id, 1);
         ct_users.splice(index, 1)[0];
       }
       console.log(ct_users);
