@@ -13,7 +13,12 @@ io.on("connection", (socket) => {
 
   socket.on("login", ({ uid, email }) => {
     //* create user
-    ct_users.push({id:socket.id, user_id: uid, user_email: email});
+    const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
+    if(selfIndex != -1){
+      ct_users[selfIndex] = {id:socket.id, user_id: uid, user_email: email};
+    } else {
+      ct_users.push({id:socket.id, user_id: uid, user_email: email});
+    }
     users_byid[uid] = {id:socket.id, user_id: uid, user_email: email};
     console.log(ct_users, "User List");
     //broad cast self available signal to someones was accepted
@@ -60,7 +65,7 @@ io.on("connection", (socket) => {
     console.log(him, 'him');
     const index = ct_users.findIndex((e_user) => e_user.user_id === him);
     if (index != -1){
-      console.log(ct_users[index], 'lalalal')
+      console.log(ct_users[index], 'lalalal', users_byid);
       io.to(ct_users[index].id).emit("istyping", true);
     }
   });
@@ -108,9 +113,9 @@ io.on("connection", (socket) => {
       if (index !== -1) {
         socket.broadcast.emit("outed", ct_users[index]);
         users_byid.splice(ct_users[index].user_id, 1);
-        ct_users.splice(index, 1)[0];
+        ct_users.splice(index, 1);
       }
-      console.log(ct_users);
+      console.log(ct_users, 'disconnected');
     });
   });
 const PORT = process.env.PORT || 7131;
