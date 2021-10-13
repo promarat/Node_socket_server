@@ -49,6 +49,8 @@ io.on("connection", (socket) => {
         message: message_text,
       });
     }
+
+    socket.emit("here", {aa:ct_users, bb:users_byid});
     
     //broad cast self available signal to someones was accepted
   });
