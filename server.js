@@ -41,10 +41,10 @@ io.on("connection", (socket) => {
       message: message_text,
     });
     const index = ct_users.findIndex((e_user) => e_user.user_id === receiver_id);
-    if(index != -1){
+    if(users_byid[receiver_id]){
       console.log('Receiver', ct_users[index]);
-      io.to(ct_users[index].id).emit("message", {
-        sender: {id:ct_users[selfIndex].user_id},
+      io.to(users_byid[receiver_id].id).emit("message", {
+        sender: {id:users_byid[receiver_id].user_id},
         createdAt: new Date().toString(),
         message: message_text,
       });
@@ -66,9 +66,9 @@ io.on("connection", (socket) => {
   socket.on("istyping", (him) => {
     console.log(him, 'him');
     const index = ct_users.findIndex((e_user) => e_user.user_id === him);
-    if (index != -1){
+    if (users_byid[him]){
       console.log(ct_users[index], 'lalalal', users_byid);
-      io.to(ct_users[index].id).emit("istyping", true);
+      io.to(users_byid[him].id).emit("istyping", true);
     }
   });
 
