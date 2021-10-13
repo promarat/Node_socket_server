@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
     if(users_byid[receiver_id]){
       console.log('Receiver', ct_users[index]);
       io.to(users_byid[receiver_id].id).emit("message", {
-        sender: {id:users_byid[receiver_id].user_id},
+        sender: {id:ct_users[selfIndex].user_id},
         createdAt: new Date().toString(),
         message: message_text,
       });
