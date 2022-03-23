@@ -126,7 +126,7 @@ io.on("connection", (socket) => {
       console.log(ct_users, 'disconnected');
     });
   });
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT || 80;
 server.listen(PORT, err => {
     if(err) throw err;
     console.log("Server running: PORT:" + PORT);
