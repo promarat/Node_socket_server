@@ -16,7 +16,7 @@ io.on("connection", (socket) => {
     //broad cast self available signal to someones was accepted
     socket.broadcast.emit("notice_Voice", {id:socket.id, user_id: uid});
   });
-  
+
   socket.on("login", ({ uid, email }) => {
     //* create user
     const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
@@ -126,7 +126,7 @@ io.on("connection", (socket) => {
       console.log(ct_users, 'disconnected');
     });
   });
-const PORT = process.env.PORT || 7131;
+const PORT = process.env.PORT || 443;
 server.listen(PORT, err => {
     if(err) throw err;
     console.log("Server running: PORT:" + PORT);
