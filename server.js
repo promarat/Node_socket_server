@@ -10,7 +10,12 @@ const rooms_byid = [];
 
 //initializing the socket io connection 
 io.on("connection", (socket) => {
-
+  socket.on("newVoice", ({ uid }) => {
+    //* create user
+    console.log(uid, "User List");
+    //broad cast self available signal to someones was accepted
+    socket.broadcast.emit("notice_Voice", {id:socket.id, user_id: uid});
+  });
   socket.on("login", ({ uid, email }) => {
     //* create user
     const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
