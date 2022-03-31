@@ -10,74 +10,73 @@ const rooms_byid = [];
 
 //initializing the socket io connection 
 io.on("connection", (socket) => {
-  console.log("connection on");
   socket.on("newVoice", ({ uid }) => {
     //* create user
-    console.log(uid, "User List");
     //broad cast self available signal to someones was accepted
     socket.broadcast.emit("notice_Voice", {id:socket.id, user_id: uid});
+    console.log(uid, "User List");
   });
   
-  // socket.on("login", ({ uid, email }) => {
-  //   //* create user
-  //   const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
-  //   if(selfIndex != -1){
-  //     ct_users[selfIndex] = {id:socket.id, user_id: uid, user_email: email};
-  //   } else {
-  //     ct_users.push({id:socket.id, user_id: uid, user_email: email});
-  //   }
-  //   users_byid[uid] = {id:socket.id, user_id: uid, user_email: email};
-  //   console.log(ct_users, "User List");
-  //   //broad cast self available signal to someones was accepted
-  //   socket.broadcast.emit("joined", {id:socket.id, user_id: uid, user_email: email});
-  // });
+  socket.on("login", ({ uid, email }) => {
+    //* create user
+    const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
+    if(selfIndex != -1){
+      ct_users[selfIndex] = {id:socket.id, user_id: uid, user_email: email};
+    } else {
+      ct_users.push({id:socket.id, user_id: uid, user_email: email});
+    }
+    users_byid[uid] = {id:socket.id, user_id: uid, user_email: email};
+    console.log(ct_users, "User List");
+    //broad cast self available signal to someones was accepted
+    socket.broadcast.emit("joined", {id:socket.id, user_id: uid, user_email: email});
+  });
 
-  // socket.on("getjoinedusers", () => {
-  //   console.log('getjoinedusers', users_byid);
-  //   socket.emit("joinedusers", users_byid);
-  // });
+  socket.on("getjoinedusers", () => {
+    console.log('getjoinedusers', users_byid);
+    socket.emit("joinedusers", users_byid);
+  });
 
-  // socket.on("sendmessage", ({receiver_id, message_text}) => {
-  //   //* create user
-  //   // ct_users.push({id:socket.id, user_id: uid, user_email: email});
-  //   const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
-  //   console.log('Sender', ct_users[selfIndex]);
-  //   socket.emit("message", {
-  //     sender: {id:ct_users[selfIndex].user_id},
-  //     createdAt: new Date().toString(),
-  //     message: message_text,
-  //   });
-  //   const index = ct_users.findIndex((e_user) => e_user.user_id === receiver_id);
-  //   if(users_byid[receiver_id]){
-  //     console.log('Receiver', ct_users[index]);
-  //     io.to(users_byid[receiver_id].id).emit("message", {
-  //       sender: {id:ct_users[selfIndex].user_id},
-  //       createdAt: new Date().toString(),
-  //       message: message_text,
-  //     });
-  //   }
+  socket.on("sendmessage", ({receiver_id, message_text}) => {
+    //* create user
+    // ct_users.push({id:socket.id, user_id: uid, user_email: email});
+    const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
+    console.log('Sender', ct_users[selfIndex]);
+    socket.emit("message", {
+      sender: {id:ct_users[selfIndex].user_id},
+      createdAt: new Date().toString(),
+      message: message_text,
+    });
+    const index = ct_users.findIndex((e_user) => e_user.user_id === receiver_id);
+    if(users_byid[receiver_id]){
+      console.log('Receiver', ct_users[index]);
+      io.to(users_byid[receiver_id].id).emit("message", {
+        sender: {id:ct_users[selfIndex].user_id},
+        createdAt: new Date().toString(),
+        message: message_text,
+      });
+    }
 
-  //   socket.emit("here", {aa:ct_users, bb:users_byid});
+    socket.emit("here", {aa:ct_users, bb:users_byid});
     
-  //   //broad cast self available signal to someones was accepted
-  // });
+    //broad cast self available signal to someones was accepted
+  });
 
-  // socket.on("gethisonline", (him) => {
-  //   const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
-  //   socket.emit("hisonline", users_byid[him] ? true : false);
-  //   if (users_byid[him]) {
-  //     rooms_byid[ct_users[selfIndex].user_id] = him;
-  //   }
-  // });
+  socket.on("gethisonline", (him) => {
+    const selfIndex = ct_users.findIndex((e_user) => e_user.id === socket.id);
+    socket.emit("hisonline", users_byid[him] ? true : false);
+    if (users_byid[him]) {
+      rooms_byid[ct_users[selfIndex].user_id] = him;
+    }
+  });
 
-  // socket.on("istyping", (him) => {
-  //   console.log(him, 'him');
-  //   const index = ct_users.findIndex((e_user) => e_user.user_id === him);
-  //   if (users_byid[him]){
-  //     console.log(ct_users[index], 'lalalal', users_byid);
-  //     io.to(users_byid[him].id).emit("istyping", true);
-  //   }
-  // });
+  socket.on("istyping", (him) => {
+    console.log(him, 'him');
+    const index = ct_users.findIndex((e_user) => e_user.user_id === him);
+    if (users_byid[him]){
+      console.log(ct_users[index], 'lalalal', users_byid);
+      io.to(users_byid[him].id).emit("istyping", true);
+    }
+  });
 
 
     //for a new user joining the room
@@ -103,16 +102,16 @@ io.on("connection", (socket) => {
     // });
   
     //user sending message
-    // socket.on("chat", (text) => {
-    //   //gets the room user and the message sent
-    //   const p_user = get_Current_User(socket.id);
+    socket.on("chat", (text) => {
+      //gets the room user and the message sent
+      const p_user = get_Current_User(socket.id);
   
-    //   io.to(p_user.room).emit("message", {
-    //     userId: p_user.id,
-    //     username: p_user.username,
-    //     text: text,
-    //   });
-    // });
+      io.to(p_user.room).emit("message", {
+        userId: p_user.id,
+        username: p_user.username,
+        text: text,
+      });
+    });
   
     //when the user exits the server
     // socket.on("disconnect", () => {
